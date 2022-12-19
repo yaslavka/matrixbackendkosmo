@@ -317,11 +317,7 @@ class KeplerControllers {
             }
             return res.json(true);
         } else {
-            let updateTable = { count: checkMatrixTable.count + 1 };
-            await Matrix_TableSecond.update(updateTable, {
-                where: { userId: user.id, typeMatrixSecondId: matrix_id },
-            });
-            return res.json(updateTable);
+            return next(ApiError.badRequest("овторная покупка не возможна"));
         }
     }
     async getType(req, res, next) {

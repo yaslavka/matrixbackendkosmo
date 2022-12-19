@@ -333,11 +333,7 @@ class GlieseControllers {
             }
             return res.json(true);
         } else {
-            let updateTable = { count: checkMatrixTable.count + 1 };
-            await Matrix_TableFour.update(updateTable, {
-                where: { userId: user.id, typeMatrixFourId: matrix_id },
-            });
-            return res.json(updateTable);
+            return next(ApiError.badRequest("овторная покупка не возможна"));
         }
     }
     async structure(req, res, next) {
