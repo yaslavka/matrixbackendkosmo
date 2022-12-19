@@ -516,6 +516,14 @@ class KeplerControllers {
         if (matrixTableData.count < 1) {
             return next(ApiError.badRequest("У Вас нет клонов"));
         }
+        let updateBalance;
+        const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: user.id,
+                walletId: walletRUBId.id
+            }
+        })
         let update = { count: matrixTableData.count - 1 };
         await Matrix_TableSecond.update(update, {
             where: { id: matrixTableData.id },
@@ -566,11 +574,9 @@ class KeplerControllers {
                             userId: user.id,
                             side_matrix,
                         });
-
-                        const marketingCheck = await marketingKeplerCheck(parent_id);
-                        if (marketingCheck > 0) {
-                            const gift = await marketingKeplerGift(parent_id, typeMatrix, marketingCheck);
-                        }
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        await marketingKeplerCheck(parent_id);
                         return res.json(true);
                     }
                     break;
@@ -614,6 +620,12 @@ class KeplerControllers {
                     break;
                 case 2:
                     if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
                         await placetwo(matrix_id, parent_id, user, side_matrix, res)
                     }
                     break;
@@ -684,6 +696,12 @@ class KeplerControllers {
             switch (matrix_id){
                 case 1:
                     if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
                         await placetwo(matrix_id, parent_id, user, side_matrix, res)
                     }
                     break;

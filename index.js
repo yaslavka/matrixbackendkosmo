@@ -18,19 +18,19 @@ const { sochetStartChart } = require("./service/orderClose");
 
 // const https = require("https");
 // const privateKey = fs.readFileSync(
-//   "/etc/letsencrypt/live/tmcoder.ru/privkey.pem",
+//   "/etc/letsencrypt/live/kosmoss.host/privkey.pem",
 //   "utf8"
 // );
 // const certificate = fs.readFileSync(
-//   "/etc/letsencrypt/live/tmcoder.ru/cert.pem",
+//   "/etc/letsencrypt/live/kosmoss.host/cert.pem",
 //   "utf8"
 // );
 // const ca = fs.readFileSync(
-//   "/etc/letsencrypt/live/tmcoder.ru/chain.pem",
+//   "/etc/letsencrypt/live/kosmoss.host/chain.pem",
 //   "utf8"
 // );
-
-
+//
+//
 // const credentials = {
 //   key: privateKey,
 //   cert: certificate,
@@ -45,7 +45,7 @@ app.use("/", express.static(path.resolve(__dirname, "files")));
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
-// const httpsServer = https.createServer(credentials, app);
+//const httpsServer = https.createServer(credentials, app);
 require('./service/io.js').init(server);
 const io = require('./service/io.js').get();
 
@@ -103,7 +103,7 @@ const start = async () => {
     await sequelize.authenticate();
     await sequelize.sync();
     server.listen(80, () => console.log(`server started on port 5000`));
-    // httpsServer.listen(443, () => console.log(`server started on port 443`));
+    //httpsServer.listen(443, () => console.log(`server started on port 443`));
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
     const typeMatrixThirdCount = await models.TypeMatrixThird.count()
     if (typeMatrixSecondCount === 0) {

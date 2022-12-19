@@ -13,6 +13,16 @@ const {
     TypeMatrixFour,
     MatrixFour, Matrix_TableSix, TypeMatrixSix, MatrixSix
 } = require("../models/models");
+const {findParentIdAida} = require("../service/findParentIdAida");
+const {checkCountParentIdAida} = require("../service/checkCoountParentIdAida");
+const marketingAidaGift = require('./AidaControllers')
+const marketingAidaCheck = async (parent_id) => {
+    if (!parent_id) {
+        return false;
+    }
+    const countNode = await MatrixSix.count({ where: { parent_id } });
+    return countNode
+};
 const findRealUser = async (id, userId) => {
     const matrixThirdItem = await MatrixFour.findOne({ where: { id } });
     const matrixTableData = await Matrix_TableFour.findOne({
@@ -126,7 +136,7 @@ const transitionToHighLevelGliese = async (matrixId, level, user) => {
         const gift = await marketingGlieseGift(parentId, nextLevel);
     }
 };
-const marketingGlieseGift = async (parentId, type_matrix_id) => {
+const marketingGlieseGift = async (parentId, type_matrix_id, count) => {
     const matrixItemThree = await MatrixFour.findOne({
         where: { id: parentId },
     });
@@ -141,19 +151,70 @@ const marketingGlieseGift = async (parentId, type_matrix_id) => {
     })
     switch (type_matrix_id) {
         case 1:
-            await transitionToHighLevelGliese(parentId, type_matrix_id, user);
-            updateBalance = { balance: (+walletRUBBalance.balance) + 500 };
-            await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            if (count === 3){
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
             break;
         case 2:
-            await transitionToHighLevelGliese(parentId, type_matrix_id, user);
-            updateBalance = { balance: (+walletRUBBalance.balance) + 1000 };
-            await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            if (count >= 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
             break;
         case 3:
-            await transitionToHighLevelGliese(parentId, type_matrix_id, user);
-            updateBalance = { balance: (+walletRUBBalance.balance) + 1500 };
-            await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            if (count == 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 0 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                let checkMatrixTable = await Matrix_TableSix.findOne({
+                    where: { userId: user.id, typeMatrixSixId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdAida(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdAida(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixSix.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableSix.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixSixId: 1,
+                        userId: user.id,
+                        count: 0,
+                    });
+                    const marketingCheck = await marketingAidaCheck(parentId);
+                    if (marketingCheck > 0) {
+                        const gift = await marketingAidaGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 1 };
+                    await Matrix_TableSix.update(updateTable, {
+                        where: { userId: user.id, typeMatrixSixId: 1 },
+                    });
+                }
+            }
             break;
         default:
             break;
@@ -481,6 +542,14 @@ class GlieseControllers {
         if (matrixTableData.count < 1) {
             return next(ApiError.badRequest("У Вас нет клонов"));
         }
+        let updateBalance;
+        const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
+        const walletRUBBalance = await BalanceCrypto.findOne({
+            where: {
+                userId: user.id,
+                walletId: walletRUBId.id
+            }
+        })
         let update = { count: matrixTableData.count - 1 };
         await Matrix_TableFour.update(update, {
             where: { id: matrixTableData.id },
@@ -526,6 +595,9 @@ class GlieseControllers {
                             userId: user.id,
                             side_matrix,
                         });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        await marketingGlieseCheck(parent_id);
                         return res.json(true);
                     }
                     break;
@@ -559,6 +631,12 @@ class GlieseControllers {
                     break;
                 case 2:
                     if (matrix_id){
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
                         await placetwo(matrix_id, parent_id, user, side_matrix, res)
                     }
                     break;
@@ -571,54 +649,54 @@ class GlieseControllers {
                             side_matrix,
                         });
 
-                        // let checkMatrixTable = await Matrix_TableFive.findOne({
-                        //     where: { userId: user.id, typeMatrixFiveId: 1 },
-                        // });
-                        // if (!checkMatrixTable) {
-                        //     const referalId = user.referal_id;
-                        //     let parentId, side_matrix;
-                        //     const parentIdForCheck = await findParentId(
-                        //         1,
-                        //         referalId,
-                        //         user.id
-                        //     );
-                        //     if (parentIdForCheck) {
-                        //         const resultFuncCheckCountParentId = await checkCountParentId(
-                        //             parentIdForCheck,
-                        //             user.id,
-                        //             1
-                        //         );
-                        //         parentId = resultFuncCheckCountParentId.parentId;
-                        //         side_matrix = resultFuncCheckCountParentId.side_matrix;
-                        //     } else {
-                        //         parentId = null;
-                        //         side_matrix = null;
-                        //     }
-                        //
-                        //     const matrixItem = await MatrixFive.create({
-                        //         date: new Date(),
-                        //         parent_id: parentId,
-                        //         userId: user.id,
-                        //         side_matrix,
-                        //     });
-                        //
-                        //     const matrixTableItem = await Matrix_TableFive.create({
-                        //         matrixFiveId: matrixItem.id,
-                        //         typeMatrixFiveId: 1,
-                        //         userId: user.id,
-                        //         count: 0,
-                        //     });
-                        //     const marketingCheck = await marketingPegasUnoCheck(parentId);
-                        //     if (marketingCheck > 0) {
-                        //         const gift = await marketingGift(parentId, 1, marketingCheck);
-                        //     }
-                        // } else {
-                        //     let updateTable = { count: checkMatrixTable.count + 1 };
-                        //     await Matrix_TableFour.update(updateTable, {
-                        //         where: { userId: user.id, typeMatrixFiveId: 1 },
-                        //     });
-                        //     return res.json(true)
-                        // }
+                        let checkMatrixTable = await Matrix_TableSix.findOne({
+                            where: { userId: user.id, typeMatrixSixId: 1 },
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdAida(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdAida(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixSix.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableSix.create({
+                                matrixSixId: matrixItem.id,
+                                typeMatrixSixId: 1,
+                                userId: user.id,
+                                count: 0,
+                            });
+                            const marketingCheck = await marketingAidaCheck(parentId);
+                            if (marketingCheck > 0) {
+                                const gift = await marketingAidaGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 1 };
+                            await Matrix_TableSix.update(updateTable, {
+                                where: { userId: user.id, typeMatrixSixId: 1 },
+                            });
+                            return res.json(true)
+                        }
                     }
                     break;
                 default:
@@ -629,6 +707,12 @@ class GlieseControllers {
             switch (matrix_id){
                 case 1:
                     if (matrix_id){
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
                         await placetwo(matrix_id, parent_id, user, side_matrix, res)
                     }
                     break;

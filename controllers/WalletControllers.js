@@ -24,11 +24,10 @@ class WalletControllers {
                 oa: amount,
                 i:'',
                 currency: "RUB",
-                em:'',
+                em:user.email,
                 pay:'PAY',
-                phone:'',
+                phone:user.phone,
                 o: user.username
-
             },
             "R0w6)=uNGqf1]JQ"
         );
@@ -54,7 +53,7 @@ class WalletControllers {
             }
             await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } });
         }
-        const url = "https://kosmoss.host";
+        const url = "https://kosmos-lif.host/finances";
         return res.redirect(url);
     }
     async redirect(req, re) {
@@ -84,7 +83,7 @@ class WalletControllers {
         }
     }
     async redirectErr(req, res) {
-        const url = "https://kosmoss.host";
+        const url = "https://kosmos-lif.host";
         return res.redirect(url);
     }
     async withdraw(req, res, next){
