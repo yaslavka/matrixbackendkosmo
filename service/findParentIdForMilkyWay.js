@@ -21,11 +21,6 @@ const findParentIdForMilkyWay = async (level, userId) => {
 
         }
     }
-    // else if (level > 15) {
-    //     return {parentId: null, typeMatrixId: 1}
-    // } else {
-    //     return {parentId: null, typeMatrixId: level}
-    // }
 
 }
 

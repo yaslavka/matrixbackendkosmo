@@ -4,7 +4,7 @@ const {
 
 const checkCountParentIdGliese = async (parentId, userId, level) => {
     if (level > 1){
-        const itemsParentId = await MatrixSecond.findAll({
+        const itemsParentId = await MatrixFour.findAll({
             where: { parent_id: parentId },
         });
         if (itemsParentId.length > 1) {
