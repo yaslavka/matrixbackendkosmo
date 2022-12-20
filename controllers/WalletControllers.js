@@ -34,7 +34,7 @@ class WalletControllers {
         return res.json(result);
     }
     async redirectAndPay(req, res) {
-        let { MERCHANT_ORDER_ID, AMOUNT } = req.body;
+        let { MERCHANT_ORDER_ID, AMOUNT } = req.query;
         AMOUNT = +AMOUNT;
         let update = {};
         if (MERCHANT_ORDER_ID && AMOUNT) {
@@ -56,8 +56,8 @@ class WalletControllers {
         const url = "https://kosmos-lif.host/finances";
         return res.redirect(url);
     }
-    async redirect(req, re) {
-        let { MERCHANT_ORDER_ID, AMOUNT } = req.body;
+    async redirect(req, res) {
+        let { MERCHANT_ORDER_ID, AMOUNT } = req.query;
         AMOUNT = +AMOUNT;
         let update = {};
 
