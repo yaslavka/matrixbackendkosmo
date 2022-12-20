@@ -1,5 +1,7 @@
 const jwt_decode = require("jwt-decode");
 const { User } = require("../models/models");
+const {Wallet} = require("../models/TablesExchange/tableWallet");
+const {BalanceCrypto} = require("../models/TablesExchange/tableBalanceCrypto");
 
 const symbolCombination = () => {
   let symbols2 = {};
@@ -167,7 +169,14 @@ class GameControllers {
     const user = await User.findOne({
         where: { username: decodeToken.username },
     });
-    const balance = { before: user.balance, after: user.balance };
+    const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
+    const walletRUBBalance = await BalanceCrypto.findOne({
+      where: {
+        userId: user.id,
+        walletId: walletRUBId.id
+      }
+    })
+    const balance = { before: (+walletRUBBalance.balance), after: (+walletRUBBalance.balance) };
     const b = { 0: 1 };
     const next_request_id = request_id ? request_id++ : 1;
     const paytable = {

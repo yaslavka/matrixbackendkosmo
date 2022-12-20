@@ -351,7 +351,7 @@ const User = sequelize.define(
     activation_date: { type: DataTypes.DATE, defaultValue: null },
     active_partners: { type: DataTypes.INTEGER, defaultValue:0 },
     avatar: { type: DataTypes.STRING, defaultValue: null },
-      //balance: { type: DataTypes.DECIMAL(61,8), defaultValue: 0.00000000, allowNull: false },
+    balance: { type: DataTypes.DECIMAL(61,8), defaultValue: 0.00000000, allowNull: false },
     can_create_comment: { type: DataTypes.BOOLEAN,  defaultValue:false },
     email: { type: DataTypes.STRING, allowNull: false },
     finance_password: { type: DataTypes.STRING, defaultValue: null },
