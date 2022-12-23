@@ -76,7 +76,7 @@ const placetwo = async (matrix_id, parent_id, user, side_matrix, res)=>{
         });
         const marketingCheck = await marketingKeplerCheck(parentId);
         if (marketingCheck > 0) {
-            const gift = await placetwo(parentId, matrix_id, marketingCheck);
+            await placetwo(parentId, matrix_id, marketingCheck);
         }
         return res.json(true);
     } else {
@@ -142,7 +142,7 @@ const transitionToHighLevelKepler = async (matrixId, level, user) => {
     }
 };
 
-const marketingKeplerGift = async (parentId, type_matrix_id, count) => {
+const marketingKeplerGift = async (parentId, type_matrix_id, count, res) => {
     const matrixItemThree = await MatrixSecond.findOne({
         where: { id: parentId },
     });
@@ -162,20 +162,336 @@ const marketingKeplerGift = async (parentId, type_matrix_id, count) => {
             }
             break;
         case 2:
-            if (count >= 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
-                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-            }
             if (count === 2){
                 await transitionToHighLevelKepler(parentId, type_matrix_id, user);
             }
             break;
         case 3:
-            if (count == 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 0 };
+            if (count === 2){
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 4:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
                 await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             }
             if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 200 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 5:
+            if (count === 2){
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 6:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableSecond.findOne({
+                    where: { userId: user.id, typeMatrixSecondId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdKepler(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixSecond.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableSecond.create({
+                        matrixSecondId: matrixItem.id,
+                        typeMatrixSecondId: 1,
+                        userId: user.id,
+                        count: 1,
+                    });
+                    const marketingCheck = await marketingKeplerCheck(parentId);
+                    if (marketingCheck > 0) {
+                        const gift = await marketingKeplerGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 2 };
+                    await Matrix_TableSecond.update(updateTable, {
+                        where: { userId: user.id, typeMatrixSecondId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1800 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 7:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 6000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableSecond.findOne({
+                    where: { userId: user.id, typeMatrixSecondId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdKepler(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixSecond.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableSecond.create({
+                        matrixSecondId: matrixItem.id,
+                        typeMatrixSecondId: 1,
+                        userId: user.id,
+                        count: 2,
+                    });
+                    const marketingCheck = await marketingKeplerCheck(parentId);
+                    if (marketingCheck > 0) {
+                      await marketingKeplerGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 3 };
+                    await Matrix_TableSecond.update(updateTable, {
+                        where: { userId: user.id, typeMatrixSecondId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 2200 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 8:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 8000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 3000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 9:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 10000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 4000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 10:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 70000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 11:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 80000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 20000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 12:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 700000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableSecond.findOne({
+                    where: { userId: user.id, typeMatrixSecondId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdKepler(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixSecond.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableSecond.create({
+                        matrixSecondId: matrixItem.id,
+                        typeMatrixSecondId: 1,
+                        userId: user.id,
+                        count: 82,
+                    });
+                    const marketingCheck = await marketingKeplerCheck(parentId);
+                    if (marketingCheck > 0) {
+                        const gift = await marketingKeplerGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 83 };
+                    await Matrix_TableSecond.update(updateTable, {
+                        where: { userId: user.id, typeMatrixSecondId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 50200 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelKepler(parentId, type_matrix_id, user);
+            }
+            break;
+        case 13:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 1890000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
                 let checkMatrixTable = await Matrix_TableFour.findOne({
                     where: { userId: user.id, typeMatrixFourId: 1 },
                 });
@@ -222,6 +538,18 @@ const marketingKeplerGift = async (parentId, type_matrix_id, count) => {
                     await Matrix_TableFour.update(updateTable, {
                         where: { userId: user.id, typeMatrixFourId: 1 },
                     });
+                    return res.json(true)
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
                 }
             }
             break;
@@ -313,7 +641,7 @@ class KeplerControllers {
             });
             const marketingCheck = await marketingKeplerCheck(parentId);
             if (marketingCheck > 0) {
-                const gift = await marketingKeplerGift(parentId, matrix_id, marketingCheck);
+                await marketingKeplerGift(parentId, matrix_id, marketingCheck, res);
             }
             return res.json(true);
         } else {
@@ -330,7 +658,7 @@ class KeplerControllers {
         });
         const typeMatrix = await TypeMatrixSecond.findAll();
         let result = [];
-        for (let i = 1; i < 4; i++) {
+        for (let i = 1; i < 14; i++) {
             const countItem = type.filter((j)=>{
                 return j.typeMatrixSecondId === i
             })
@@ -548,21 +876,50 @@ class KeplerControllers {
             switch (matrix_id){
                 case 1:
                     if (matrix_id){
+                        const marketingCheck = await marketingKeplerCheck(parent_id);
                         const matrixItem = MatrixSecond.create({
                             date: new Date(),
                             parent_id: parent_id,
                             userId: user.id,
                             side_matrix,
                         });
-
-                        const marketingCheck = await marketingKeplerCheck(parent_id);
                         if (marketingCheck > 0) {
-                            const gift = await marketingKeplerGift(parent_id, typeMatrix, marketingCheck);
+                            await marketingKeplerGift(parent_id, typeMatrix, marketingCheck);
                         }
                         return res.json(true);
                     }
                     break;
                 case 2:
+                    if (matrix_id){
+                        const marketingCheck = await marketingKeplerCheck(parent_id);
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (marketingCheck > 0) {
+                            await marketingKeplerGift(parent_id, typeMatrix, marketingCheck, res);
+                        }
+                        return res.json(true);
+                    }
+                    break;
+                case 3:
+                    if (matrix_id){
+                        const marketingCheck = await marketingKeplerCheck(parent_id);
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (marketingCheck > 0) {
+                            await marketingKeplerGift(parent_id, typeMatrix, marketingCheck, res);
+                        }
+                        return res.json(true);
+                    }
+                    break;
+                case 4:
                     if (matrix_id){
                         const matrixItem = MatrixSecond.create({
                             date: new Date(),
@@ -572,11 +929,25 @@ class KeplerControllers {
                         });
                         updateBalance = { balance: (+walletRUBBalance.balance) + 600 };
                         await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-                        await marketingKeplerCheck(parent_id);
                         return res.json(true);
                     }
                     break;
-                case 3:
+                case 5:
+                    if (matrix_id){
+                        const marketingCheck = await marketingKeplerCheck(parent_id);
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (marketingCheck > 0) {
+                            await marketingKeplerGift(parent_id, typeMatrix, marketingCheck, res);
+                        }
+                        return res.json(true);
+                    }
+                    break;
+                case 6:
                     if (matrix_id){
                         const matrixItem = MatrixSecond.create({
                             date: new Date(),
@@ -584,11 +955,99 @@ class KeplerControllers {
                             userId: user.id,
                             side_matrix,
                         });
-
-                        const marketingCheck = await marketingKeplerCheck(parent_id);
-                        if (marketingCheck > 0) {
-                            const gift = await marketingKeplerGift(parent_id, typeMatrix, marketingCheck);
-                        }
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 2000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 7:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 6000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 8:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 8000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 9:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 10000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 10:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 70000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 11:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 80000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 12:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 700000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+                        return res.json(true);
+                    }
+                    break;
+                case 13:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 1890000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
                         return res.json(true);
                     }
                     break;
@@ -606,12 +1065,7 @@ class KeplerControllers {
                             userId: user.id,
                             side_matrix,
                         });
-
-                        const marketingCheck = await marketingKeplerCheck(parent_id);
-                        if (marketingCheck > 0) {
-                            const gift = await marketingKeplerGift(parent_id, typeMatrix, marketingCheck);
-                        }
-                        return res.json(true);
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
                     }
                     break;
                 case 2:
@@ -633,7 +1087,383 @@ class KeplerControllers {
                             userId: user.id,
                             side_matrix,
                         });
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 4:
+                    if (matrix_id){
+                        let checkMatrixTable = await Matrix_TableSecond.findOne({
+                            where: { userId: user.id, typeMatrixSecondId: 1 },
+                        });
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 200 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdKepler(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
 
+                            const matrixItem = await MatrixSecond.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableSecond.create({
+                                matrixSecondId: matrixItem.id,
+                                typeMatrixSecondId: 1,
+                                userId: user.id,
+                                count: 0,
+                            });
+                          await marketingKeplerCheck(parentId);
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 1 };
+                            await Matrix_TableSecond.update(updateTable, {
+                                where: { userId: user.id, typeMatrixSecondId: 1 },
+                            });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 5:
+                    if (matrix_id){
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 6:
+                    if (matrix_id){
+                        let checkMatrixTable = await Matrix_TableSecond.findOne({
+                            where: { userId: user.id, typeMatrixSecondId: 1 },
+                        });
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 1800 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdKepler(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixSecond.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableSecond.create({
+                                matrixSecondId: matrixItem.id,
+                                typeMatrixSecondId: 1,
+                                userId: user.id,
+                                count: 1,
+                            });
+                            await marketingKeplerCheck(parentId);
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 2 };
+                            await Matrix_TableSecond.update(updateTable, {
+                                where: { userId: user.id, typeMatrixSecondId: 1 },
+                            });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 7:
+                    if (matrix_id){
+                        let checkMatrixTable = await Matrix_TableSecond.findOne({
+                            where: { userId: user.id, typeMatrixSecondId: 1 },
+                        });
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 2200 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdKepler(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixSecond.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableSecond.create({
+                                matrixSecondId: matrixItem.id,
+                                typeMatrixSecondId: 1,
+                                userId: user.id,
+                                count: 2,
+                            });
+                            await marketingKeplerCheck(parentId);
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 3 };
+                            await Matrix_TableSecond.update(updateTable, {
+                                where: { userId: user.id, typeMatrixSecondId: 1 },
+                            });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 8:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 3000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 9:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 4000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 10:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 11:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 20000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 12:
+                    if (matrix_id){
+                        let checkMatrixTable = await Matrix_TableSecond.findOne({
+                            where: { userId: user.id, typeMatrixSecondId: 1 },
+                        });
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixSecond.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 50200 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdKepler(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdKepler(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixSecond.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableSecond.create({
+                                matrixSecondId: matrixItem.id,
+                                typeMatrixSecondId: 1,
+                                userId: user.id,
+                                count: 82,
+                            });
+                            await marketingKeplerCheck(parentId);
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 83 };
+                            await Matrix_TableSecond.update(updateTable, {
+                                where: { userId: user.id, typeMatrixSecondId: 1 },
+                            });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 13:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableSecond.findOne({where:{userId:user.referal_id}})
                         let checkMatrixTable = await Matrix_TableFour.findOne({
                             where: { userId: user.id, typeMatrixFourId: 1 },
                         });
@@ -681,6 +1511,17 @@ class KeplerControllers {
                                 where: { userId: user.id, typeMatrixFourId: 1 },
                             });
                             return res.json(true)
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
                         }
                     }
                     break;

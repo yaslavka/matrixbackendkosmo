@@ -7,7 +7,6 @@ const AidaControllers = require('../controllers/AidaControllers')
 
 const router = new Router()
 
-
 //sweeps
 router.get('/clone-stat', SweepsControllers.getCloneStat)
 router.get('/type', SweepsControllers.getType)

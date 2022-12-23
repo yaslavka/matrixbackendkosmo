@@ -52,7 +52,7 @@ const io = require('./service/io.js').get();
 
 
 const typeMatrixSecondSumm = [
-  300, 600, 1200
+  600, 1800, 3600, 7200, 13000, 26000, 47000, 84000, 157000, 300000, 500000, 900000, 1000000
 ]
 
 const typeMatrixThirdSumm = [
@@ -107,7 +107,7 @@ const start = async () => {
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
     const typeMatrixThirdCount = await models.TypeMatrixThird.count()
     if (typeMatrixSecondCount === 0) {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 13; i++) {
         await models.TypeMatrixSecond.create({
           summ: typeMatrixSecondSumm[i]
         })
@@ -123,7 +123,7 @@ const start = async () => {
     const cloneStatSecondCount = await models.CloneStatSecond.count()
     const cloneStatThirdCount = await models.CloneStatThird.count()
     if (cloneStatSecondCount === 0) {
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 13; i++) {
         await models.CloneStatSecond.create({
           count: 0,
           level: i + 1

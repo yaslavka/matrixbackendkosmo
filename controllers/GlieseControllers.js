@@ -11,7 +11,7 @@ const {
     User,
     Matrix_TableFour,
     TypeMatrixFour,
-    MatrixFour, Matrix_TableSix, TypeMatrixSix, MatrixSix
+    MatrixFour, Matrix_TableSix, MatrixSix
 } = require("../models/models");
 const {findParentIdAida} = require("../service/findParentIdAida");
 const {checkCountParentIdAida} = require("../service/checkCoountParentIdAida");
@@ -89,7 +89,7 @@ const placetwo = async (matrix_id, parent_id, user, side_matrix, res)=>{
         });
         const marketingCheck = await marketingGlieseCheck(parentId);
         if (marketingCheck > 0) {
-            const gift = await placetwo(parentId, matrix_id, marketingCheck);
+            await placetwo(parentId, matrix_id, marketingCheck);
         }
         return res.json(true);
     } else {
@@ -156,20 +156,433 @@ const marketingGlieseGift = async (parentId, type_matrix_id, count) => {
             }
             break;
         case 2:
-            if (count >= 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
-                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            if (count === 2){
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
             }
             break;
         case 3:
-            if (count == 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 0 };
+            if (count === 2){
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 4:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 20000 };
                 await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             }
             if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 20000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 5:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 50000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 1,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 2 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 6:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 50000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 1,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 2 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 7:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 150000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 1,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 2 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 8:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 350000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 4,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 5 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 50000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 9:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 1000000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                let checkMatrixTable = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTable) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 2,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTable.count + 3 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 70000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                }
+                await transitionToHighLevelGliese(parentId, type_matrix_id, user);
+            }
+            break;
+        case 10:
+            if (count === 1){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 2000000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
+            }
+            if (count === 2){
+                const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
                 let checkMatrixTable = await Matrix_TableSix.findOne({
                     where: { userId: user.id, typeMatrixSixId: 1 },
                 });
+                let checkMatrixTabl = await Matrix_TableFour.findOne({
+                    where: { userId: user.id, typeMatrixFourId: 1 },
+                });
+                if (!checkMatrixTabl) {
+                    const referalId = user.referal_id;
+                    let parentId, side_matrix;
+                    const parentIdForCheck = await findParentIdGliese(
+                        1,
+                        referalId,
+                        user.id
+                    );
+                    if (parentIdForCheck) {
+                        const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                            parentIdForCheck,
+                            user.id,
+                            1
+                        );
+                        parentId = resultFuncCheckCountParentId.parentId;
+                        side_matrix = resultFuncCheckCountParentId.side_matrix;
+                    } else {
+                        parentId = null;
+                        side_matrix = null;
+                    }
+
+                    const matrixItem = await MatrixFour.create({
+                        date: new Date(),
+                        parent_id: parentId,
+                        userId: user.id,
+                        side_matrix,
+                    });
+
+                    const matrixTableItem = await Matrix_TableFour.create({
+                        matrixFourId: matrixItem.id,
+                        typeMatrixFourId: 1,
+                        userId: user.id,
+                        count: 2,
+                    });
+                    const marketingCheck = await marketingGlieseCheck(parentId);
+                    if (marketingCheck > 0) {
+                        await marketingGlieseGift(parentId, 1, marketingCheck);
+                    }
+                } else {
+                    let updateTable = { count: checkMatrixTabl.count + 3 };
+                    await Matrix_TableFour.update(updateTable, {
+                        where: { userId: user.id, typeMatrixFourId: 1 },
+                    });
+                }
                 if (!checkMatrixTable) {
                     const referalId = user.referal_id;
                     let parentId, side_matrix;
@@ -206,13 +619,24 @@ const marketingGlieseGift = async (parentId, type_matrix_id, count) => {
                     });
                     const marketingCheck = await marketingAidaCheck(parentId);
                     if (marketingCheck > 0) {
-                        const gift = await marketingAidaGift(parentId, 1, marketingCheck);
+                         await marketingAidaGift(parentId, 1, marketingCheck);
                     }
                 } else {
                     let updateTable = { count: checkMatrixTable.count + 1 };
                     await Matrix_TableSix.update(updateTable, {
                         where: { userId: user.id, typeMatrixSixId: 1 },
                     });
+                }
+                if (matrixKeplerCheckReferal){
+                    const referalUser = await User.findOne({where:{id:user.referal_id}})
+                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                        where: {
+                            userId: referalUser.id,
+                            walletId: walletRUBId.id
+                        }
+                    })
+                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 200000 };
+                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
                 }
             }
             break;
@@ -246,7 +670,7 @@ class GlieseControllers {
         });
         const typeMatrix = await TypeMatrixFour.findAll();
         let result = [];
-        for (let i = 1; i < 4; i++) {
+        for (let i = 1; i < 11; i++) {
             const countItem = type.filter((j)=>{
                 return j.typeMatrixFourId === i
             })
@@ -329,7 +753,7 @@ class GlieseControllers {
             });
             const marketingCheck = await marketingGlieseCheck(parentId);
             if (marketingCheck) {
-                const gift = await marketingGlieseGift(parentId, matrix_id);
+                await marketingGlieseGift(parentId, matrix_id);
             }
             return res.json(true);
         } else {
@@ -591,9 +1015,6 @@ class GlieseControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        updateBalance = { balance: (+walletRUBBalance.balance) + 3000 };
-                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-                        await marketingGlieseCheck(parent_id);
                         return res.json(true);
                     }
                     break;
@@ -605,6 +1026,19 @@ class GlieseControllers {
                             userId: user.id,
                             side_matrix,
                         });
+                        return res.json(true);
+                    }
+                    break;
+                case 4:
+                    if (matrix_id){
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        updateBalance = { balance: (+walletRUBBalance.balance) + 20000 };
+                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
                         return res.json(true);
                     }
                     break;
@@ -644,11 +1078,454 @@ class GlieseControllers {
                             userId: user.id,
                             side_matrix,
                         });
-
-                        let checkMatrixTable = await Matrix_TableSix.findOne({
-                            where: { userId: user.id, typeMatrixSixId: 1 },
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 4:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 20000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 5:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
                         });
                         if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 1,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 2 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 6:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 1,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 2 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 7:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 1,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 2 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 30000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 8:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 4,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 5 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 50000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 9:
+                    if (matrix_id){
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 2,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 3 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 70000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                    }
+                    break;
+                case 10:
+                    if (matrix_id){
+                        let checkMatrixTabl = await Matrix_TableSix.findOne({
+                            where: { userId: user.id, typeMatrixSixId: 1 },
+                        });
+                        const matrixKeplerCheckReferal = await Matrix_TableFour.findOne({where:{userId:user.referal_id}})
+                        let checkMatrixTable = await Matrix_TableFour.findOne({
+                            where: { userId: user.id, typeMatrixFourId: 1 },
+                        });
+                        const matrixItem = MatrixFour.create({
+                            date: new Date(),
+                            parent_id: parent_id,
+                            userId: user.id,
+                            side_matrix,
+                        });
+                        if (!checkMatrixTable) {
+                            const referalId = user.referal_id;
+                            let parentId, side_matrix;
+                            const parentIdForCheck = await findParentIdGliese(
+                                1,
+                                referalId,
+                                user.id
+                            );
+                            if (parentIdForCheck) {
+                                const resultFuncCheckCountParentId = await checkCountParentIdGliese(
+                                    parentIdForCheck,
+                                    user.id,
+                                    1
+                                );
+                                parentId = resultFuncCheckCountParentId.parentId;
+                                side_matrix = resultFuncCheckCountParentId.side_matrix;
+                            } else {
+                                parentId = null;
+                                side_matrix = null;
+                            }
+
+                            const matrixItem = await MatrixFour.create({
+                                date: new Date(),
+                                parent_id: parentId,
+                                userId: user.id,
+                                side_matrix,
+                            });
+
+                            const matrixTableItem = await Matrix_TableFour.create({
+                                matrixFourId: matrixItem.id,
+                                typeMatrixFourId: 1,
+                                userId: user.id,
+                                count: 2,
+                            });
+                            const marketingCheck = await marketingGlieseCheck(parentId);
+                            if (marketingCheck > 0) {
+                                await marketingGlieseGift(parentId, 1, marketingCheck);
+                            }
+                        } else {
+                            let updateTable = { count: checkMatrixTable.count + 3 };
+                            await Matrix_TableFour.update(updateTable, {
+                                where: { userId: user.id, typeMatrixFourId: 1 },
+                            });
+                        }
+                        if (matrixKeplerCheckReferal){
+                            const referalUser = await User.findOne({where:{id:user.referal_id}})
+                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
+                                where: {
+                                    userId: referalUser.id,
+                                    walletId: walletRUBId.id
+                                }
+                            })
+                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 200000 };
+                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
+                        }
+
+                        if (!checkMatrixTabl) {
                             const referalId = user.referal_id;
                             let parentId, side_matrix;
                             const parentIdForCheck = await findParentIdAida(
@@ -687,7 +1564,7 @@ class GlieseControllers {
                                 const gift = await marketingAidaGift(parentId, 1, marketingCheck);
                             }
                         } else {
-                            let updateTable = { count: checkMatrixTable.count + 1 };
+                            let updateTable = { count: checkMatrixTabl.count + 1 };
                             await Matrix_TableSix.update(updateTable, {
                                 where: { userId: user.id, typeMatrixSixId: 1 },
                             });
