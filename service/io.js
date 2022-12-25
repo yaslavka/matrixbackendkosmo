@@ -5,7 +5,7 @@ module.exports = {
   init: (httpsServer) => {
     io = new Server(httpsServer, {
       cors: {
-        origin: "https://kosmos-lif.host",
+        origin: "*",
         methods: ["GET", "POST"],
       },
     });
