@@ -3,6 +3,10 @@ const SweepsControllers = require('../controllers/SweepsControllers')
 const KeplerControllers = require('../controllers/KeplerControllers')
 const GlieseControllers = require('../controllers/GlieseControllers')
 const AidaControllers = require('../controllers/AidaControllers')
+const RocketsControllers =require('../controllers/RocketsControllers')
+const IonControllers = require('../controllers/IonControllers')
+const RoyalsControllers = require('../controllers/RoyalControllers')
+const UnoControllers = require('../controllers/UnoControllers')
 
 
 const router = new Router()
@@ -15,6 +19,15 @@ router.get('/structure', SweepsControllers.structure)
 router.get('/structure-upper', SweepsControllers.structureUpper)
 router.get('/clone', SweepsControllers.clone)
 router.post('/target-install-clone', SweepsControllers.targetClone)
+
+//x2
+router.get('/unos/clone-stat', UnoControllers.getCloneStat)
+router.post('/unos/buy', UnoControllers.buy)
+router.get('/unos/type', UnoControllers.getType)
+router.get('/unos/structure', UnoControllers.structure)
+router.get('/unos/structure-upper', UnoControllers.structureUpper)
+router.get('/unos/clone', UnoControllers.clone)
+router.post('/unos/target-install-clone', UnoControllers.targetClone)
 
 //kepler
 router.get('/uno/clone-stat', KeplerControllers.getCloneStat)
@@ -41,5 +54,32 @@ router.get('/super/structure-upper', AidaControllers.structureUpper)
 router.get('/super/clone', AidaControllers.clone)
 router.post('/super/install-clone', AidaControllers.targetClone)
 
+//Rockets
+router.get('/rockets/type', RocketsControllers.getType)
+router.get('/rockets/clone-stat', RocketsControllers.getCloneStat)
+router.post('/rockets/buy', RocketsControllers.buy)
+router.get('/rockets/structure', RocketsControllers.structure)
+router.get('/rockets/structure-upper', RocketsControllers.structureUpper)
+router.get('/rockets/clone', RocketsControllers.clone)
+router.post('/rockets/target-install-clone', RocketsControllers.targetClone)
 
-module.exports = router 
+//Ion
+router.get('/ion/clone-stat', IonControllers.getCloneStat)
+router.post('/ion/buy', IonControllers.buy)
+router.get('/ion/type', IonControllers.getType)
+router.get('/ion/structure', IonControllers.structure)
+router.get('/ion/structure-upper', IonControllers.structureUpper)
+router.get('/ion/clone', IonControllers.clone)
+router.post('/ion/target-install-clone', IonControllers.targetClone)
+
+//Royal
+router.get('/royals/type', RoyalsControllers.getType)
+router.get('/royals/clone-stat', RoyalsControllers.getCloneStat)
+router.post('/royals/buy', RoyalsControllers.buy)
+router.get('/royals/structure', RoyalsControllers.structure)
+router.get('/royals/structure-upper', RoyalsControllers.structureUpper)
+router.get('/royals/clone', RoyalsControllers.clone)
+router.post('/royals/install-clone', RoyalsControllers.targetClone)
+
+
+module.exports = router

@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const path = require("path");
 const moment = require('moment')
-const { User, Matrix_Table, Matrix, InvestBox } = require("../models/models");
+const { User, Matrix_Table, InvestBox } = require("../models/models");
 const jwt = require("jsonwebtoken");
 const jwt_decode = require("jwt-decode");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
@@ -11,22 +11,11 @@ const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { Market } = require("../models/TablesExchange/tableMarket");
 const { OrderSell } = require("../models/TablesExchange/tableOrdesSell");
 const { updateBalanceBTCByUserId } = require("../service/walletCrypto");
+const decode='random_key'
 
 const generateJwt = (id, email, username, first_name, last_name, referral) => {
-    return jwt.sign(
-        {
-            id,
-            email: email,
-            first_name: first_name,
-            last_name: last_name,
-            referral: referral,
-            username: username,
-        },
-        process.env.SECRET_KEY,
-        { expiresIn: "24h" }
-    );
+    return jwt.sign({id:id, email: email, first_name: first_name, last_name: last_name, referral: referral, username: username},decode);
 };
-
 class UserController {
     async inviter(req, res, next) {
         const { username } = req.query;
@@ -125,7 +114,7 @@ class UserController {
             user.last_name,
             user.referral
         );
-        const w = {w:user.id};
+        const w = {w:access_token};
         return res.json({ access_token, w });
     }
     async fio(req, res, next) {
@@ -134,6 +123,9 @@ class UserController {
             return next(ApiError.internal("Поля не заполнены"));
         }
         const { authorization } = req.headers;
+        if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
         const user = await User.findOne({
@@ -156,6 +148,9 @@ class UserController {
             return next(ApiError.internal("Поля не заполнены"));
         }
         const { authorization } = req.headers;
+        if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
         let update = {}
@@ -186,6 +181,9 @@ class UserController {
             return next(ApiError.internal("Поля не заполнены"));
         }
         const { authorization } = req.headers;
+        if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
         const token = authorization.slice(7);
         const decodeToken = jwt_decode(token);
         const user = await User.findOne({
@@ -196,10 +194,13 @@ class UserController {
         return res.json(updatedUser)
     }
     async user(req, res, next) {
-        const { authorization } = req.headers;
+       const { authorization } = req.headers;
+       if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
         const token = authorization.slice(7);
         try {
-            const { username } = jwt_decode(token);
+            const { username } = jwt.decode(token);
             let user = await User.findOne({ where: { username } });
             if (!user) {
                 return next(ApiError.internal("Такой пользователь не найден"));
@@ -252,11 +253,15 @@ class UserController {
             return next(ApiError.internal(error));
         }
     }
+ 
     async avatar(req, res, next) {
         const { avatar } = req.files;
         const { authorization } = req.headers;
+        if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
         const token = authorization.slice(7);
-        const decodeToken = jwt_decode(token);
+        const decodeToken = jwt.decode(token);
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
@@ -266,10 +271,30 @@ class UserController {
         await User.update(update, { where: { id: user.id } });
         return res.json("Аватар успешно загружен");
     }
+    async avatars(req, res) {
+        console.log('!!! FILES req.body:', JSON.stringify(req.body))
+        console.log('!!! FILES req.files:', JSON.stringify(req.files))
+        const { authorization } = req.headers;
+        if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
+        const token = authorization.slice(7);
+        const decodeToken = jwt.decode(token);
+        const user = await User.findOne({
+            where: { username: decodeToken.username },
+        });
+        let fileName = req.files[0].filename;
+        let update = { avatar: fileName };
+        await User.update(update, { where: { id: user.id } });
+       return res.json("Аватар успешно загружен");
+    }
     async password(req, res, next) {
         try {
             const { new_password, old_password } = req.body;
             const { authorization } = req.headers;
+            if(!authorization){
+                return res.json('Ненайден айди пользователя');
+            }
             const token = authorization.slice(7);
             const decodeToken = jwt_decode(token);
             const user = await User.findOne({

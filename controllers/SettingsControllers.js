@@ -100,9 +100,9 @@ class SettingsControllers {
                     console.log('Email sent: ' + info.response);
                 }
             });
-            return res.json(true)
+            return res.json({message: 'Новый пароль выслан вам на почту проверте папку спам'})
         } catch (error) {
-            return res.json(error)
+             return res.json({message:error})
         }
 
     }

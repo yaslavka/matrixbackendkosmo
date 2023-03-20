@@ -1,6 +1,18 @@
 const Router = require('express')
 const UserControllers = require('../controllers/UserControllers')
 const router = new Router()
+// const multer = require('multer');
+//
+// const storage = multer.diskStorage({
+//     destination(req, file, callback) {
+//         callback(null, '.././files/images');
+//     },
+//     filename(req, file, callback) {
+//         callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
+//     },
+// });
+// const upload = multer({ storage });
+// router.post('/avatars', upload.array('avatar'), UserControllers.avatars);
 
 
 //registration

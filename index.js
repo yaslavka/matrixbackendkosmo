@@ -2,54 +2,78 @@ require("dotenv").config();
 const fs = require("fs");
 const http = require("http");
 const express = require("express");
+const app = express();
 const sequelize = require("./db");
 const models = require("./models/models");
 const cors = require("cors");
-const fileUpload = require("express-fileupload");
 const router = require("./routes/index");
 const ErrorHandlingMiddleware = require("./middleware/ErrorHandlingMiddleware");
 const path = require("path");
-const app = express();
+const bodyParser = require('body-parser');
 const { Op } = require("sequelize");
 const createFakeMatrices = require("./service/createFakeMatrices");
 const socketStart = require("./service/socketStart");
 const { sochetStartChart } = require("./service/orderClose");
+const multer = require("multer");
+const UserControllers = require("./controllers/UserControllers");
+const fileUpload = require("express-fileupload");
 //const exchangeParser = require("./service/exchangeParser");
 
-const https = require("https");
-const privateKey = fs.readFileSync(
-  "/etc/letsencrypt/live/kosmoss.host/privkey.pem",
-  "utf8"
-);
-const certificate = fs.readFileSync(
-  "/etc/letsencrypt/live/kosmoss.host/cert.pem",
-  "utf8"
-);
-const ca = fs.readFileSync(
-  "/etc/letsencrypt/live/kosmoss.host/chain.pem",
-  "utf8"
-);
-
-
-const credentials = {
-  key: privateKey,
-  cert: certificate,
-  ca: ca,
-};
+// const https = require("https");
+// const privateKey = fs.readFileSync(
+//   "/etc/letsencrypt/live/kosmoss.host/privkey.pem",
+//   "utf8"
+// );
+// const certificate = fs.readFileSync(
+//   "/etc/letsencrypt/live/kosmoss.host/cert.pem",
+//   "utf8"
+// );
+// const ca = fs.readFileSync(
+//   "/etc/letsencrypt/live/kosmoss.host/chain.pem",
+//   "utf8"
+// );
+//
+//
+// const credentials = {
+//   key: privateKey,
+//   cert: certificate,
+//   ca: ca,
+// };
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 app.use(fileUpload({}));
 app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")));
-app.use("/", express.static(path.resolve(__dirname, "files")));
+app.use(
+    "/",
+    express.static(path.resolve(__dirname, "files", "build"))
+);
+app.use(
+    "/register",
+    express.static(path.resolve(__dirname, "files", "build"))
+);
+app.use(
+    "/login",
+    express.static(path.resolve(__dirname, "files", "build"))
+);
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
-const httpsServer = https.createServer(credentials, app);
-require('./service/io.js').init(httpsServer);
+//const httpsServer = https.createServer(credentials, app);
+require('./service/io.js').init(server);
 const io = require('./service/io.js').get();
 
-
+const storage = multer.diskStorage({
+  destination(req, file, callback) {
+    callback(null, './files/images');
+  },
+  filename(req, file, callback) {
+    callback(null, `${file.fieldname}_${Date.now()}_${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+app.post('/api/user/avatars', upload.array('avatar'),UserControllers.avatars);
 
 const typeMatrixSecondSumm = [
   600, 1800, 3600, 7200, 13000, 26000, 47000, 84000, 157000, 300000, 500000, 900000, 1000000
@@ -103,7 +127,7 @@ const start = async () => {
     await sequelize.authenticate();
     await sequelize.sync();
     server.listen(80, () => console.log(`server started on port 5000`));
-    httpsServer.listen(443, () => console.log(`server started on port 443`));
+    //httpsServer.listen(443, () => console.log(`server started on port 443`));
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
     const typeMatrixThirdCount = await models.TypeMatrixThird.count()
     if (typeMatrixSecondCount === 0) {

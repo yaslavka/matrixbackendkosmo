@@ -1,4 +1,4 @@
-const jwt_decode = require("jwt-decode");
+const jwt = require("jsonwebtoken");
 const { User } = require("../models/models");
 const {Wallet} = require("../models/TablesExchange/tableWallet");
 const {BalanceCrypto} = require("../models/TablesExchange/tableBalanceCrypto");
@@ -165,7 +165,7 @@ class GameControllers {
   async project(req, res) {
     const data = JSON.parse(req.body.data);
     let { request_id, bet, customVars } = data;
-    const decodeToken = jwt_decode(customVars);
+    const decodeToken = jwt.decode(customVars);
     const user = await User.findOne({
         where: { username: decodeToken.username },
     });

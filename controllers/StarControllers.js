@@ -354,53 +354,53 @@ class StarControllers {
         const user = await User.findOne({
             where: { username: decodeToken.username },
         });
-        const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
-        const walletRUBBalance = await BalanceCrypto.findOne({
-            where: {
-                userId: user.id,
-                walletId: walletRUBId.id
-            }
-        })
-        if ((walletRUBBalance.balance < 2160) && ((+user.locale) < 2160)) {
-            return next(ApiError.badRequest("Недостаточно средств"));
-        } else if (walletRUBBalance.balance >= 2160) {
-            let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
-            let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
-        } else {
-            let update = { locale: ((+user.locale) - 2160) }
-            let temp = await User.update(update, { where: { id: user.id } })
-        }
-        const level = 1;
-        // const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
-        // const matrix = matrixTemp.filter((i, index) => {
-        //     return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
+        // const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
+        // const walletRUBBalance = await BalanceCrypto.findOne({
+        //     where: {
+        //         userId: user.id,
+        //         walletId: walletRUBId.id
+        //     }
         // })
-        const {parentId, typeMatrixId} = await findParentIdForMilkyWay(level, user.id)
-        const matrixItem = await Matrix.create({
-            date: new Date,
-            parent_id: parentId,
-            userId: user.id
-        })
-        const matrixTableItem = await Matrix_Table.create({
-            matrixId: matrixItem.id,
-            typeMatrixId,
-            userId: user.id,
-            count: 2160
-        })
+        // if ((walletRUBBalance.balance < 2160) && ((+user.locale) < 2160)) {
+        //     return next(ApiError.badRequest("Недостаточно средств"));
+        // } else if (walletRUBBalance.balance >= 2160) {
+        //     let update = { balance: ((+ walletRUBBalance.balance) - 2160) }
+        //     let temp = await BalanceCrypto.update(update, { where: { id: walletRUBBalance.id } })
+        // } else {
+        //     let update = { locale: ((+user.locale) - 2160) }
+        //     let temp = await User.update(update, { where: { id: user.id } })
+        // }
+        // const level = 1;
+        // // const matrixTemp = await Matrix.findAll({ include: { model: Matrix_Table, as: "matrix_table" } })
+        // // const matrix = matrixTemp.filter((i, index) => {
+        // //     return ((i.matrix_table[0]?.typeMatrixId === 1) && (i.matrix_table[0]?.count > 6))
+        // // })
+        // const {parentId, typeMatrixId} = await findParentIdForMilkyWay(level, user.id)
+        // const matrixItem = await Matrix.create({
+        //     date: new Date,
+        //     parent_id: parentId,
+        //     userId: user.id
+        // })
+        // const matrixTableItem = await Matrix_Table.create({
+        //     matrixId: matrixItem.id,
+        //     typeMatrixId,
+        //     userId: user.id,
+        //     count: 2160
+        // })
 
-        const userItemsInMAtrixTable = await Matrix_Table.findAll({
-            where: { userId: user.id }
-        })
+        // const userItemsInMAtrixTable = await Matrix_Table.findAll({
+        //     where: { userId: user.id }
+        // })
 
-        const myComet = userItemsInMAtrixTable.reduce((a, b) => a + b.count, 0);
-        const allPlanet = await Matrix_Table.count()
-        const allComet = (await summColumnStatistic())[0].dataValues.all_count
-        const my_planet = await Matrix_Table.count({ where: { userId: user.id } })
-        let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
-        await updateOrCreate(Statistic, { userId: user.id }, newItem)
-        await checkForLevel(parentId, level)
-        await updateStatistic(allComet, allPlanet)
-        return res.json(true);
+        // const myComet = userItemsInMAtrixTable.reduce((a, b) => a + b.count, 0);
+        // const allPlanet = await Matrix_Table.count()
+        // const allComet = (await summColumnStatistic())[0].dataValues.all_count
+        // const my_planet = await Matrix_Table.count({ where: { userId: user.id } })
+        // let newItem = { all_comet: allComet, all_planet: allPlanet, first_planet: 0, my_comet: myComet, my_planet, structure_planet: 0, userId: user.id }
+        // await updateOrCreate(Statistic, { userId: user.id }, newItem)
+        // await checkForLevel(parentId, level)
+        // await updateStatistic(allComet, allPlanet)
+        return res.json({message:'Вданный момент платформа не доступна'});
 
     }
 

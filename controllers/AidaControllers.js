@@ -4,7 +4,6 @@ const { findParentIdAida } = require("../service/findParentIdAida");
 const {
     checkCountParentIdAida,
 } = require("../service/checkCoountParentIdAida");
-const marketingKeplerGift = require("./KeplerControllers")
 
 
 const {
@@ -16,17 +15,6 @@ const {
 } = require("../models/models");
 const { Wallet } = require("../models/TablesExchange/tableWallet");
 const { BalanceCrypto } = require("../models/TablesExchange/tableBalanceCrypto");
-const {findParentIdKepler} = require("../service/findParentIdKepler");
-const {checkCountParentIdKepler} = require("../service/checkCoountParentIdKepler");
-const {findParentIdGliese} = require("../service/findParentIdGliese");
-const {checkCountParentIdGliese} = require("../service/checkCountParentIdGliese");
-const marketingKeplerCheck = async (parent_id) => {
-    if (!parent_id) {
-        return false;
-    }
-    const countNode = await MatrixSecond.count({ where: { parent_id } });
-    return countNode
-};
 
 const marketingAidaCheck = async (parent_id) => {
     if (!parent_id) {
@@ -35,58 +23,8 @@ const marketingAidaCheck = async (parent_id) => {
     const countNode = await MatrixSix.count({ where: { parent_id } });
     return countNode
 };
-const placetwo = async (matrix_id, parent_id, user, side_matrix, res)=>{
-    let matrix = matrix_id + 1
-    let checkMatrixTable = await Matrix_TableSix.findOne({
-        where: {userId: user.id, typeMatrixSixId: matrix},
-    });
-    if (!checkMatrixTable) {
-        const referalId = user.referal_id;
-        let parentId, side_matrix;
-        const parentIdForCheck = await findParentIdAida(
-            matrix,
-            referalId,
-            user.id
-        );
-        if (parentIdForCheck) {
-            const resultFuncCheckCountParentId = await checkCountParentIdAida(
-                parentIdForCheck,
-                user.id,
-                matrix
-            );
-            parentId = resultFuncCheckCountParentId.parentId;
-            side_matrix = resultFuncCheckCountParentId.side_matrix;
-        } else {
-            parentId = null;
-            side_matrix = null;
-        }
 
-        const matrixItem = await MatrixSix.create({
-            date: new Date(),
-            parent_id: parentId,
-            userId: user.id,
-            side_matrix,
-        });
 
-        const matrixTableItem = await Matrix_TableSix.create({
-            matrixSixId: matrixItem.id,
-            typeMatrixSixId: matrix,
-            userId: user.id,
-            count: 0,
-        });
-        const marketingCheck = await marketingAidaCheck(parentId);
-        if (marketingCheck > 0) {
-            const gift = await placetwo(parentId, matrix_id, marketingCheck);
-        }
-        return res.json(true);
-    } else {
-        let updateTable = {count: checkMatrixTable.count + 1};
-        await Matrix_TableSix.update(updateTable, {
-            where: {userId: user.id, typeMatrixSixId: matrix},
-        });
-        return res.json(updateTable);
-    }
-}
 const findRealUser = async (id, userId) => {
     const matrixThirdItem = await MatrixSix.findOne({ where: { id } });
     const matrixTableData = await Matrix_TableSix.findOne({
@@ -158,72 +96,23 @@ const marketingAidaGift = async (parentId, type_matrix_id, count, res) => {
     switch (type_matrix_id) {
         case 1:
             if (count === 3){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 90000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
                 await transitionToHighLevelAida(parentId, type_matrix_id, user);
             }
             break;
         case 2:
-            if (count === 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 100000 };
-                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-            }
             if (count === 2){
-                const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                if (matrixKeplerCheckReferal){
-                    const referalUser = await User.findOne({where:{id:user.referal_id}})
-                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                        where: {
-                            userId: referalUser.id,
-                            walletId: walletRUBId.id
-                        }
-                    })
-                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                }
+                updateBalance = { balance: (+walletRUBBalance.balance) + 80000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
                 await transitionToHighLevelAida(parentId, type_matrix_id, user);
             }
             break;
         case 3:
             if (count === 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 500000 };
-                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-            }
-            if (count === 2){
-                const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                if (matrixKeplerCheckReferal){
-                    const referalUser = await User.findOne({where:{id:user.referal_id}})
-                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                        where: {
-                            userId: referalUser.id,
-                            walletId: walletRUBId.id
-                        }
-                    })
-                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                }
-                await transitionToHighLevelAida(parentId, type_matrix_id, user);
-            }
-            break;
-        case 4:
-            if (count === 1){
-                updateBalance = { balance: (+walletRUBBalance.balance) + 1000000 };
-                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-            }
-            if (count === 2){
                 let checkMatrixTabl = await Matrix_TableSix.findOne({
                     where: { userId: user.id, typeMatrixSixId: 1 },
                 });
-                const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                if (matrixKeplerCheckReferal){
-                    const referalUser = await User.findOne({where:{id:user.referal_id}})
-                    const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                        where: {
-                            userId: referalUser.id,
-                            walletId: walletRUBId.id
-                        }
-                    })
-                    let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                    await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                }
                 if (!checkMatrixTabl) {
                     const referalId = user.referal_id;
                     let parentId, side_matrix;
@@ -260,7 +149,7 @@ const marketingAidaGift = async (parentId, type_matrix_id, count, res) => {
                     });
                     const marketingCheck = await marketingAidaCheck(parentId);
                     if (marketingCheck > 0) {
-                        const gift = await marketingAidaGift(parentId, 1, marketingCheck);
+                        await marketingAidaGift(parentId, 1, marketingCheck);
                     }
                 } else {
                     let updateTable = { count: checkMatrixTabl.count + 10 };
@@ -269,6 +158,10 @@ const marketingAidaGift = async (parentId, type_matrix_id, count, res) => {
                     });
                     return res.json(true)
                 }
+            }
+            if (count === 2){
+                updateBalance = { balance: (+walletRUBBalance.balance) + 80000 };
+                await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
             }
             break;
 
@@ -362,9 +255,13 @@ class AidaControllers {
                 await marketingAidaGift(parentId, matrix_id, marketingCheck, res);
             }
             return res.json(true);
-        } else {
-            return next(ApiError.badRequest("овторная покупка не возможна"));
+        }else {
+            let updateTable = { count: checkMatrixTable.count + 1 };
+            await Matrix_TableSix.update(updateTable, {
+                where: { userId: user.id, typeMatrixSixId: matrix_id },
+            });
         }
+        return res.json(true)
     }
     async getType(req, res, next) {
         const { authorization } = req.headers;
@@ -376,7 +273,7 @@ class AidaControllers {
         });
         const typeMatrix = await TypeMatrixSix.findAll();
         let result = [];
-        for (let i = 1; i < 5; i++) {
+        for (let i = 1; i < 4; i++) {
             const countItem = type.filter((j)=>{
                 return j.typeMatrixSixId === i
             })
@@ -399,8 +296,13 @@ class AidaControllers {
             const rootUserId = await MatrixSix.findOne({
                 where: { id: matrix_id },
             });
+            if(!rootUserId){
+                return res.json({message: 'Ненайден айди пользователя'});
+            }
             const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
-
+            if(!rootUser){
+                return res.json({message: 'Ненайден айди пользователя'});
+            }
             const firstChildes = await childNode(matrix_id);
 
             let result = {
@@ -499,7 +401,13 @@ class AidaControllers {
             const rootUserId = await MatrixSix.findOne({
                 where: { id: temp.parent_id },
             });
+            if(!rootUserId){
+                return res.json({message: 'Ненайден айди пользователя'});
+            }
             const rootUser = await User.findOne({ where: { id: rootUserId.userId } });
+            if(!rootUser){
+                return res.json({message: 'Ненайден айди пользователя'});
+            }
             const firstChildes = await childNode(rootUserId.id);
             let result = {
                 0: {
@@ -558,14 +466,6 @@ class AidaControllers {
         if (matrixTableData.count < 1) {
             return next(ApiError.badRequest("У Вас нет клонов"));
         }
-        let updateBalance;
-        const walletRUBId = await Wallet.findOne({where:{name: 'RUR'}})
-        const walletRUBBalance = await BalanceCrypto.findOne({
-            where: {
-                userId: user.id,
-                walletId: walletRUBId.id
-            }
-        })
         let update = { count: matrixTableData.count - 1 };
         await Matrix_TableSix.update(update, {
             where: { id: matrixTableData.id },
@@ -600,11 +500,6 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-
-                        const marketingCheck = await marketingAidaCheck(parent_id);
-                        if (marketingCheck > 0) {
-                            const gift = await marketingAidaGift(parent_id, typeMatrix, marketingCheck);
-                        }
                         return res.json(true);
                     }
                     break;
@@ -616,9 +511,8 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        updateBalance = { balance: (+walletRUBBalance.balance) + 100000 };
-                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-                        return res.json(true);
+                        await marketingAidaGift(parent_id, matrix_id, place, res)
+                        return res.json(true)
                     }
                     break;
                 case 3:
@@ -629,22 +523,8 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        updateBalance = { balance: (+walletRUBBalance.balance) + 500000 };
-                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-                        return res.json(true);
-                    }
-                    break;
-                case 4:
-                    if (matrix_id){
-                        const matrixItem = MatrixSix.create({
-                            date: new Date(),
-                            parent_id: parent_id,
-                            userId: user.id,
-                            side_matrix,
-                        });
-                        updateBalance = { balance: (+walletRUBBalance.balance) + 1000000 };
-                        await BalanceCrypto.update(updateBalance, { where: { id: walletRUBBalance.id } });
-                        return res.json(true);
+                        await marketingAidaGift(parent_id, matrix_id, place, res)
+                        return res.json(true)
                     }
                     break;
                 default:
@@ -661,11 +541,7 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        const marketingCheck = await marketingAidaCheck(parent_id);
-                        if (marketingCheck > 0) {
-                            const gift = await marketingAidaGift(parent_id, typeMatrix, marketingCheck);
-                        }
-                        return res.json(true);
+                        return res.json(true)
                     }
                     break;
                 case 2:
@@ -676,19 +552,8 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                        if (matrixKeplerCheckReferal){
-                            const referalUser = await User.findOne({where:{id:user.referal_id}})
-                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                                where: {
-                                    userId: referalUser.id,
-                                    walletId: walletRUBId.id
-                                }
-                            })
-                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                        }
-                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                        await marketingAidaGift(parent_id, matrix_id, place, res)
+                        return res.json(true)
                     }
                     break;
                 case 3:
@@ -699,89 +564,8 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                        if (matrixKeplerCheckReferal){
-                            const referalUser = await User.findOne({where:{id:user.referal_id}})
-                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                                where: {
-                                    userId: referalUser.id,
-                                    walletId: walletRUBId.id
-                                }
-                            })
-                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                        }
-                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
-                    }
-                    break;
-                case 4:
-                    if (matrix_id){
-                        const matrixItem = MatrixSix.create({
-                            date: new Date(),
-                            parent_id: parent_id,
-                            userId: user.id,
-                            side_matrix,
-                        });
-                        let checkMatrixTabl = await Matrix_TableSix.findOne({
-                            where: { userId: user.id, typeMatrixSixId: 1 },
-                        });
-                        const matrixKeplerCheckReferal = await Matrix_TableSix.findOne({where:{userId:user.referal_id}})
-                        if (matrixKeplerCheckReferal){
-                            const referalUser = await User.findOne({where:{id:user.referal_id}})
-                            const walletRUBBalanceReferal = await BalanceCrypto.findOne({
-                                where: {
-                                    userId: referalUser.id,
-                                    walletId: walletRUBId.id
-                                }
-                            })
-                            let updateBalanceReferal = { balance: (+walletRUBBalanceReferal.balance) + 100000 };
-                            await BalanceCrypto.update(updateBalanceReferal, { where: { id: walletRUBBalanceReferal.id } });
-                        }
-                        if (!checkMatrixTabl) {
-                            const referalId = user.referal_id;
-                            let parentId, side_matrix;
-                            const parentIdForCheck = await findParentIdAida(
-                                1,
-                                referalId,
-                                user.id
-                            );
-                            if (parentIdForCheck) {
-                                const resultFuncCheckCountParentId = await checkCountParentIdAida(
-                                    parentIdForCheck,
-                                    user.id,
-                                    1
-                                );
-                                parentId = resultFuncCheckCountParentId.parentId;
-                                side_matrix = resultFuncCheckCountParentId.side_matrix;
-                            } else {
-                                parentId = null;
-                                side_matrix = null;
-                            }
-
-                            const matrixItem = await MatrixSix.create({
-                                date: new Date(),
-                                parent_id: parentId,
-                                userId: user.id,
-                                side_matrix,
-                            });
-
-                            const matrixTableItem = await Matrix_TableSix.create({
-                                matrixSixId: matrixItem.id,
-                                typeMatrixSixId: 1,
-                                userId: user.id,
-                                count: 9,
-                            });
-                            const marketingCheck = await marketingAidaCheck(parentId);
-                            if (marketingCheck > 0) {
-                                await marketingAidaGift(parentId, 1, marketingCheck);
-                            }
-                        } else {
-                            let updateTable = { count: checkMatrixTabl.count + 10 };
-                            await Matrix_TableSix.update(updateTable, {
-                                where: { userId: user.id, typeMatrixSixId: 1 },
-                            });
-                            return res.json(true)
-                        }
+                        await marketingAidaGift(parent_id, matrix_id, place, res)
+                        return res.json(true)
                     }
                     break;
                 default:
@@ -798,7 +582,8 @@ class AidaControllers {
                             userId: user.id,
                             side_matrix,
                         });
-                        await placetwo(matrix_id, parent_id, user, side_matrix, res)
+                        await marketingAidaGift(parent_id, matrix_id, place, res)
+                        return res.json(true)
                     }
                     break;
                 default:
