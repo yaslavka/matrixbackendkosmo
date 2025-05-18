@@ -126,7 +126,7 @@ const start = async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
-    server.listen(80, () => console.log(`server started on port 5000`));
+    server.listen(5002, () => console.log(`server started on port 5000`));
     //httpsServer.listen(443, () => console.log(`server started on port 443`));
     const typeMatrixSecondCount = await models.TypeMatrixSecond.count()
     const typeMatrixThirdCount = await models.TypeMatrixThird.count()
