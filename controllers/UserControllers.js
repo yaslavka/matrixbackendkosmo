@@ -201,7 +201,7 @@ class UserController {
         const token = authorization.slice(7);
         try {
             const { username } = jwt.decode(token);
-            let user = await User.findOne({ where: { username } });
+            const user = await User.findOne({ where: { username:username } });
             if (!user) {
                 return next(ApiError.internal("Такой пользователь не найден"));
             }
@@ -217,7 +217,6 @@ class UserController {
                 }
             })
 
-            user = await User.findOne({ where: { username } });
             const matrixUser = await Matrix_Table.findAll({
                 where: { userId: user.id },
             });
