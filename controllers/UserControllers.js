@@ -220,6 +220,7 @@ class UserController {
             const matrixUser = await Matrix_Table.findAll({
                 where: { userId: user.id },
             });
+
             const walletRUBId = await Wallet.findOne({ where: { name: 'RUR' } })
             const walletRUBBalance = await BalanceCrypto.findOne({
                 where: {
