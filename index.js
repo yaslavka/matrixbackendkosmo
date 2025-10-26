@@ -45,18 +45,6 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(fileUpload({}));
 app.use("/api/user", express.static(path.resolve(__dirname, "files", "images")));
-app.use(
-    "/",
-    express.static(path.resolve(__dirname, "files", "build"))
-);
-app.use(
-    "/register",
-    express.static(path.resolve(__dirname, "files", "build"))
-);
-app.use(
-    "/login",
-    express.static(path.resolve(__dirname, "files", "build"))
-);
 app.use("/api", router);
 app.use(ErrorHandlingMiddleware);
 const server = http.createServer(app);
